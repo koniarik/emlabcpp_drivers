@@ -17,9 +17,14 @@ namespace emlabcpp::drivers::ina219
 
 using handler = protocol::register_handler< regmap >;
 
-read_request driver::make_request( registers reg )
+void driver::query( registers reg, i2c_interface& iface )
 {
-        return { .address = reg, .count = 2 };
+        std::array< uint8_t, 2 > data;
+        if ( !iface.read( reg, data ) ) {
+                // TODO: report error
+                return;
+        }
+        store_read( reg, data );
 }
 
 bool driver::store_read( uint8_t addr, std::span< const uint8_t > data )
@@ -66,18 +71,14 @@ config driver::get_config() const
         return map_.get_val< CONFIGURATION_REGISTER >();
 }
 
-write_request< 2 > driver::set_config( config cfg )
+void driver::set_config( config cfg, i2c_interface& iface )
 {
         map_.set_val< CONFIGURATION_REGISTER >( cfg );
-        return write_request< 2 >{
-            .address = CONFIGURATION_REGISTER,
-            .data    = handler::serialize< CONFIGURATION_REGISTER >( cfg ) };
+        iface.write( CONFIGURATION_REGISTER, handler::serialize< CONFIGURATION_REGISTER >( cfg ) );
 }
-write_request< 2 > driver::set_calibration( uint16_t calib )
+void driver::set_calibration( uint16_t calib, i2c_interface& iface )
 {
         map_.set_val< CALIBRATION_REGISTER >( calib );
-        return write_request< 2 >{
-            .address = CALIBRATION_REGISTER,
-            .data    = handler::serialize< CALIBRATION_REGISTER >( calib ) };
+        iface.write( CALIBRATION_REGISTER, handler::serialize< CALIBRATION_REGISTER >( calib ) );
 }
 }  // namespace emlabcpp::drivers::ina219

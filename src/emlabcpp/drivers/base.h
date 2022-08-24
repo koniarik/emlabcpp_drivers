@@ -2,21 +2,16 @@
 
 #include <array>
 #include <cstdint>
+#include <span>
 
 namespace emlabcpp::drivers
 {
 
-struct [[nodiscard]] read_request
+struct i2c_interface
 {
-        uint8_t address;
-        uint8_t count;
-};
-
-template < std::size_t N >
-struct [[nodiscard]] write_request
-{
-        uint8_t                address;
-        protocol::message< N > data;
+        virtual bool read( uint8_t addr, std::span< uint8_t > data )        = 0;
+        virtual bool write( uint8_t addr, std::span< const uint8_t > data ) = 0;
+        virtual ~i2c_interface()                                            = default;
 };
 
 }  // namespace emlabcpp::drivers

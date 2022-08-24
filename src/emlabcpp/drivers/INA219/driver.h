@@ -10,8 +10,8 @@ namespace emlabcpp::drivers::ina219
 class driver
 {
 public:
-        read_request make_request( registers reg );
-        bool         store_read( uint8_t addr, std::span< const uint8_t > data );
+        void query( registers reg, i2c_interface& );
+        bool store_read( uint8_t addr, std::span< const uint8_t > data );
 
         float    get_current() const;
         float    get_power() const;
@@ -21,8 +21,8 @@ public:
         float    get_shunt_voltage() const;
         config   get_config() const;
 
-        write_request< 2 > set_config( config );
-        write_request< 2 > set_calibration( uint16_t );
+        void set_config( config, i2c_interface& );
+        void set_calibration( uint16_t, i2c_interface& );
 
         template < ostreamlike Stream >
         friend auto& operator<<( Stream& os, const driver& d );
