@@ -11,7 +11,7 @@ struct i2c_interface
 {
         virtual bool read( uint8_t addr, std::span< uint8_t > data )        = 0;
         virtual bool write( uint8_t addr, std::span< const uint8_t > data ) = 0;
-        virtual ~i2c_interface()                                            = default;
+        virtual ~i2c_interface()                                            = 0;
 };
 
 }  // namespace emlabcpp::drivers

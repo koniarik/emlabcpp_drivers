@@ -7,7 +7,7 @@ namespace emlabcpp::drivers
 
 TEST( INA219, basic )
 {
-        ina219::driver d;
+        ina219::driver d{0x42};
 
         auto store = [&]( uint8_t addr, std::initializer_list< uint8_t > data ) {
                 d.store_read( addr, std::span{ std::data( data ), data.size() } );
