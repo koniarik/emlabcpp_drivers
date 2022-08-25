@@ -30,10 +30,16 @@ public:
         friend auto& operator<<( Stream& os, const driver& d );
 
 private:
-        bool write( registers reg, protocol::message< 2 >, i2c_interface& );
+        bool write(
+            registers reg,
+            protocol::message< 2 >,
+            i2c_interface&,
+            static_function< bool( i2c_interface& ), 16 > );
 
-        uint8_t address_;
-        regmap  map_;
+        std::array< uint8_t, 2 > write_buffer_;
+        std::array< uint8_t, 2 > read_buffer_;
+        uint8_t                  address_;
+        regmap                   map_;
 };
 
 template < ostreamlike Stream >
