@@ -36,10 +36,8 @@ private:
             i2c_interface&,
             static_function< bool( i2c_interface& ), 16 > );
 
-        std::array< uint8_t, 2 > write_buffer_;
-        std::array< uint8_t, 2 > read_buffer_;
-        uint8_t                  address_;
-        regmap                   map_;
+        uint8_t address_;
+        regmap  map_;
 };
 
 template < ostreamlike Stream >

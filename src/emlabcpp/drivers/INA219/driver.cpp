@@ -24,14 +24,14 @@ driver::driver( uint8_t address )
 
 void driver::query( registers reg, i2c_interface& iface )
 {
-        write_buffer_ = { reg, 0 };
-        iface.write(
-            address_, std::span{ write_buffer_.data(), 1 }, [this, reg]( i2c_interface& iface ) {
-                    return iface.read( address_, read_buffer_, [this, reg]( i2c_interface& ) {
-                            store_read( reg, read_buffer_ );
+        std::array< uint8_t, 1 > data = { reg };
+        iface.write( address_, data, [this, reg]( i2c_interface& iface ) {
+                return iface.read(
+                    address_, 2, [this, reg]( i2c_interface&, std::span< uint8_t > data ) {
+                            store_read( reg, data );
                             return true;
                     } );
-            } );
+        } );
 }
 
 bool driver::store_read( uint8_t addr, std::span< const uint8_t > data )
