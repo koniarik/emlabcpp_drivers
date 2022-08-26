@@ -22,12 +22,14 @@ driver::driver( uint8_t address )
 {
 }
 
-void driver::query( registers reg, i2c_interface& iface )
+void driver::query( registers reg, i2c_owning_async_interface& iface )
 {
         std::array< uint8_t, 1 > data = { reg };
-        iface.write( address_, data, [this, reg]( i2c_interface& iface ) {
+        iface.write( address_, data, [this, reg]( i2c_owning_async_interface& iface ) {
                 return iface.read(
-                    address_, 2, [this, reg]( i2c_interface&, std::span< uint8_t > data ) {
+                    address_,
+                    2,
+                    [this, reg]( std::span< uint8_t > data, i2c_owning_async_interface& ) {
                             store_read( reg, data );
                             return true;
                     } );
@@ -78,33 +80,33 @@ config driver::get_config() const
         return map_.get_val< CONFIGURATION_REGISTER >();
 }
 
-bool driver::set_config( config cfg, i2c_interface& iface )
+bool driver::set_config( config cfg, i2c_owning_async_interface& iface )
 {
         return write(
             CONFIGURATION_REGISTER,
             handler::serialize< CONFIGURATION_REGISTER >( cfg ),
             iface,
-            [this, cfg]( i2c_interface& ) {
+            [this, cfg]( i2c_owning_async_interface& ) {
                     map_.set_val< CONFIGURATION_REGISTER >( cfg );
                     return true;
             } );
 }
-bool driver::set_calibration( uint16_t calib, i2c_interface& iface )
+bool driver::set_calibration( uint16_t calib, i2c_owning_async_interface& iface )
 {
         return write(
             CALIBRATION_REGISTER,
             handler::serialize< CALIBRATION_REGISTER >( calib ),
             iface,
-            [this, calib]( i2c_interface& ) {
+            [this, calib]( i2c_owning_async_interface& ) {
                     map_.set_val< CALIBRATION_REGISTER >( calib );
                     return true;
             } );
 }
 bool driver::write(
-    registers                                     reg,
-    protocol::message< 2 >                        data,
-    i2c_interface&                                iface,
-    static_function< bool( i2c_interface& ), 16 > cb )
+    registers                       reg,
+    protocol::message< 2 >          data,
+    i2c_owning_async_interface&     iface,
+    i2c_owning_async_write_callback cb )
 {
         std::array< uint8_t, 3 > buff = { reg, data[0], data[1] };
         return iface.write( address_, buff, cb );

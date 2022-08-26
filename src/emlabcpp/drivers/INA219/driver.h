@@ -12,7 +12,7 @@ class driver
 public:
         driver( uint8_t address );
 
-        void query( registers reg, i2c_interface& );
+        void query( registers reg, i2c_owning_async_interface& );
         bool store_read( uint8_t addr, std::span< const uint8_t > data );
 
         float    get_current() const;
@@ -23,8 +23,8 @@ public:
         float    get_shunt_voltage() const;
         config   get_config() const;
 
-        bool set_config( config, i2c_interface& );
-        bool set_calibration( uint16_t, i2c_interface& );
+        bool set_config( config, i2c_owning_async_interface& );
+        bool set_calibration( uint16_t, i2c_owning_async_interface& );
 
         template < ostreamlike Stream >
         friend auto& operator<<( Stream& os, const driver& d );
@@ -33,8 +33,8 @@ private:
         bool write(
             registers reg,
             protocol::message< 2 >,
-            i2c_interface&,
-            static_function< bool( i2c_interface& ), 16 > );
+            i2c_owning_async_interface&,
+            i2c_owning_async_write_callback );
 
         uint8_t address_;
         regmap  map_;
