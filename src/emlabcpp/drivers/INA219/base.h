@@ -5,7 +5,7 @@
 namespace emlabcpp::drivers::ina219
 {
 
-enum registers
+enum registers : uint8_t
 {
         CONFIGURATION_REGISTER = 0x00,
         SHUNT_VOLTAGE_REGISTER = 0x01,
