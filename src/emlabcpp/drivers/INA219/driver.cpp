@@ -2,16 +2,6 @@
 
 #include "emlabcpp/protocol/register_handler.h"
 
-namespace emlabcpp::protocol
-{
-template < std::endian Endianess >
-struct converter< drivers::ina219::config, Endianess >
-  : memcpy_converter< drivers::ina219::config, Endianess >
-{
-        static_assert( sizeof( drivers::ina219::config ) == 2 );
-};
-}  // namespace emlabcpp::protocol
-
 namespace emlabcpp::drivers::ina219
 {
 

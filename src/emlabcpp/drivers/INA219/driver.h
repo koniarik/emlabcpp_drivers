@@ -1,12 +1,13 @@
 #include "emlabcpp/drivers/INA219/base.h"
 #include "emlabcpp/drivers/INA219/map.h"
-#include "emlabcpp/drivers/base.h"
+#include "emlabcpp/drivers/i2c.h"
 #include "emlabcpp/protocol/streams.h"
 
 #include <span>
 
 namespace emlabcpp::drivers::ina219
 {
+
 class driver
 {
 public:

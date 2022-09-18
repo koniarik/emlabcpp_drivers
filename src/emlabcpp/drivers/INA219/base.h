@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <emlabcpp/protocol/converter.h>
 
 #pragma once
 
@@ -76,3 +77,22 @@ struct config
 #pragma pack( pop )
 
 }  // namespace emlabcpp::drivers::ina219
+
+namespace emlabcpp::protocol
+{
+
+template <>
+struct proto_traits< drivers::ina219::config >
+{
+        using value_type                      = drivers::ina219::config;
+        static constexpr std::size_t max_size = sizeof( value_type );
+        static constexpr std::size_t min_size = sizeof( value_type );
+};
+
+template < std::endian Endianess >
+struct converter< drivers::ina219::config, Endianess >
+  : memcpy_converter< drivers::ina219::config, Endianess >
+{
+        static_assert( sizeof( drivers::ina219::config ) == 2 );
+};
+}  // namespace emlabcpp::protocol

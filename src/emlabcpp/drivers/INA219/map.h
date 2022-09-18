@@ -1,17 +1,6 @@
 #include "emlabcpp/drivers/INA219/base.h"
 #include "emlabcpp/protocol/register_map.h"
 
-namespace emlabcpp::protocol
-{
-template <>
-struct proto_traits< drivers::ina219::config >
-{
-        using value_type                      = drivers::ina219::config;
-        static constexpr std::size_t max_size = 2;
-        static constexpr std::size_t min_size = 2;
-};
-}  // namespace emlabcpp::protocol
-
 namespace emlabcpp::drivers::ina219
 {
 
