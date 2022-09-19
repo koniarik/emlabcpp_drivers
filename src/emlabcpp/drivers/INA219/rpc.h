@@ -57,7 +57,12 @@ using rpc_wrapper = rpc::class_wrapper<
     rpc::derive< SET_CONFIG, &rpc_wrapper_impl::set_config >,
     rpc::derive< SET_CALIBRATION, &rpc_wrapper_impl::set_calibration > >;
 
-using request_message_type = typename rpc::wrapper_traits< rpc_wrapper >::request_message_type;
-using reply_message_type   = typename rpc::wrapper_traits< rpc_wrapper >::reply_message_type;
+using rpc_traits = rpc::wrapper_traits< rpc_wrapper >;
+
+using request_group = typename rpc_traits::request_group;
+using reply_group   = typename rpc_traits::reply_group;
+
+using request_message_type = typename rpc_traits::request_message_type;
+using reply_message_type   = typename rpc_traits::reply_message_type;
 
 }  // namespace emlabcpp::drivers::ina219
