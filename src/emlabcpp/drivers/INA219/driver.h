@@ -5,6 +5,8 @@
 
 #include <span>
 
+#pragma once
+
 namespace emlabcpp::drivers::ina219
 {
 

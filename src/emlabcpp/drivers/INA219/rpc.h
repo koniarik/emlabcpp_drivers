@@ -3,6 +3,8 @@
 
 #include <emlabcpp/experimental/rpc.h>
 
+#pragma once
+
 namespace emlabcpp::drivers::ina219
 {
 
@@ -58,9 +60,6 @@ using rpc_wrapper = rpc::class_wrapper<
     rpc::derive< SET_CALIBRATION, &rpc_wrapper_impl::set_calibration > >;
 
 using rpc_traits = rpc::wrapper_traits< rpc_wrapper >;
-
-using request_group = typename rpc_traits::request_group;
-using reply_group   = typename rpc_traits::reply_group;
 
 using request_message_type = typename rpc_traits::request_message_type;
 using reply_message_type   = typename rpc_traits::reply_message_type;
