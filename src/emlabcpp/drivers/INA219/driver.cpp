@@ -12,18 +12,31 @@ driver::driver( uint8_t address )
 {
 }
 
-void driver::query( registers reg, i2c_owning_async_interface& iface )
+bool driver::query(
+    registers                     reg,
+    i2c_owning_async_interface&   iface,
+    callback< void( registers ) > resp )
 {
         std::array< uint8_t, 1 > data = { reg };
-        iface.write( address_, data, [this, reg]( i2c_owning_async_interface& iface ) {
+        return iface.write( address_, data, [this, reg, resp]( i2c_owning_async_interface& iface ) {
                 return iface.read(
                     address_,
                     2,
-                    [this, reg]( std::span< uint8_t > data, i2c_owning_async_interface& ) {
+                    [this, reg, resp]( std::span< uint8_t > data, i2c_owning_async_interface& ) {
                             store_read( reg, data );
+                            resp( reg );
                             return true;
                     } );
         } );
+}
+
+i2c_read_reg_query driver::query( registers reg )
+{
+        return {
+            .addr = address_,
+            .reg  = reg,
+            .size = 2,
+        };
 }
 
 bool driver::store_read( uint8_t addr, std::span< const uint8_t > data )
@@ -70,25 +83,39 @@ config driver::get_config() const
         return map_.get_val< CONFIGURATION_REGISTER >();
 }
 
-bool driver::set_config( config cfg, i2c_owning_async_interface& iface )
+i2c_write_reg_blob< 2 > driver::set_config( config cfg )
+{
+        map_.set_val< CONFIGURATION_REGISTER >( cfg );
+        return i2c_write_reg_blob< 2 >{
+            .addr = address_,
+            .reg  = CONFIGURATION_REGISTER,
+            .data = handler::serialize< CONFIGURATION_REGISTER >( cfg ) };
+}
+
+bool driver::set_config( config cfg, i2c_owning_async_interface& iface, callback< void() > cb )
 {
         return write(
             CONFIGURATION_REGISTER,
             handler::serialize< CONFIGURATION_REGISTER >( cfg ),
             iface,
-            [this, cfg]( i2c_owning_async_interface& ) {
+            [this, cfg, cb]( i2c_owning_async_interface& ) {
                     map_.set_val< CONFIGURATION_REGISTER >( cfg );
+                    cb();
                     return true;
             } );
 }
-bool driver::set_calibration( uint16_t calib, i2c_owning_async_interface& iface )
+bool driver::set_calibration(
+    uint16_t                    calib,
+    i2c_owning_async_interface& iface,
+    callback< void() >          cb )
 {
         return write(
             CALIBRATION_REGISTER,
             handler::serialize< CALIBRATION_REGISTER >( calib ),
             iface,
-            [this, calib]( i2c_owning_async_interface& ) {
+            [this, calib, cb]( i2c_owning_async_interface& ) {
                     map_.set_val< CALIBRATION_REGISTER >( calib );
+                    cb();
                     return true;
             } );
 }

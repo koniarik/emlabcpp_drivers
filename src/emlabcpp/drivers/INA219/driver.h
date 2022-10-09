@@ -10,12 +10,21 @@
 namespace emlabcpp::drivers::ina219
 {
 
-class driver
+template < typename Signature >
+using callback = static_function< Signature, 12 >;
+
+class driver : public i2c_awaiter_interface
 {
 public:
         driver( uint8_t address );
 
-        void query( registers reg, i2c_owning_async_interface& );
+        bool query(
+            registers reg,
+            i2c_owning_async_interface&,
+            callback< void( registers ) > resp = []( registers ) {} );
+
+        i2c_read_reg_query query( registers reg );
+
         bool store_read( uint8_t addr, std::span< const uint8_t > data );
 
         float    get_current() const;
@@ -26,8 +35,16 @@ public:
         float    get_shunt_voltage() const;
         config   get_config() const;
 
-        bool set_config( config, i2c_owning_async_interface& );
-        bool set_calibration( uint16_t, i2c_owning_async_interface& );
+        i2c_write_reg_blob< 2 > set_config( config );
+
+        bool set_config(
+            config,
+            i2c_owning_async_interface&,
+            callback< void() > cb = []() {} );
+        bool set_calibration(
+            uint16_t,
+            i2c_owning_async_interface&,
+            callback< void() > cb = []() {} );
 
         template < ostreamlike Stream >
         friend auto& operator<<( Stream& os, const driver& d );
