@@ -43,7 +43,7 @@ bool driver::store_read( uint8_t addr, std::span< const uint8_t > data )
 {
         std::optional opt_err = handler::insert(
             map_, static_cast< registers >( addr ), view_n( data.data(), data.size() ) );
-        return opt_err.has_value();
+        return !opt_err.has_value();
 }
 
 float driver::get_current() const
@@ -90,6 +90,15 @@ i2c_write_reg_blob< 2 > driver::set_config( config cfg )
             .addr = address_,
             .reg  = CONFIGURATION_REGISTER,
             .data = handler::serialize< CONFIGURATION_REGISTER >( cfg ) };
+}
+
+i2c_write_reg_blob< 2 > driver::set_calib( uint16_t val )
+{
+        map_.set_val< CALIBRATION_REGISTER >( val );
+        return i2c_write_reg_blob< 2 >{
+            .addr = address_,
+            .reg  = CALIBRATION_REGISTER,
+            .data = handler::serialize< CALIBRATION_REGISTER >( val ) };
 }
 
 bool driver::set_config( config cfg, i2c_owning_async_interface& iface, callback< void() > cb )

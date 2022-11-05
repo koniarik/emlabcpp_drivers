@@ -26,9 +26,7 @@ TEST( INA219, basic )
         EXPECT_FLOAT_EQ( d.get_current(), 10.0 );
         EXPECT_FLOAT_EQ( d.get_power(), 119.8 );
 
-        pretty_printer pp{};
-        pp << d;
-        std::cout << pp.str();
+        EMLABCPP_LOG(d);
 }
 
 }  // namespace emlabcpp::drivers

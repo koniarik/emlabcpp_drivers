@@ -73,7 +73,6 @@ struct config
         adc_resolution_averaging shunt_adc : 4;
         operating_mode           mode : 3;
 };
-
 #pragma pack( pop )
 
 }  // namespace emlabcpp::drivers::ina219
@@ -91,8 +90,46 @@ struct proto_traits< drivers::ina219::config >
 
 template < std::endian Endianess >
 struct converter< drivers::ina219::config, Endianess >
-  : memcpy_converter< drivers::ina219::config, Endianess >
 {
-        static_assert( sizeof( drivers::ina219::config ) == 2 );
+        using value_type                      = drivers::ina219::config;
+        using traits                          = proto_traits< drivers::ina219::config >;
+        static constexpr std::size_t max_size = traits::max_size;
+        static constexpr std::size_t min_size = traits::min_size;
+        using size_type                       = bounded< std::size_t, min_size, max_size >;
+
+        static constexpr size_type
+        serialize_at( std::span< uint8_t, max_size > buffer, const drivers::ina219::config& val )
+        {
+                uint16_t res = static_cast< uint16_t >(
+                    val.reset << 15 | val.unused << 14 | val.bus_vol << 13 | val.pga << 11 |
+                    val.bus_adc << 7 | val.shunt_adc << 3 | val.mode );
+
+                buffer[0] = static_cast< uint8_t >( res << 8 );
+                buffer[1] = static_cast< uint8_t >( res & 0xFF );
+
+                return size_type{};
+        }
+
+        static constexpr auto deserialize( const bounded_view< const uint8_t*, size_type >& buffer )
+            -> conversion_result< value_type, error_possibility::IMPOSSIBLE >
+        {
+                uint16_t inpt = static_cast< uint16_t >( buffer[0] << 8 | buffer[1] );
+                drivers::ina219::config res;
+
+                res.reset   = inpt >> 15;
+                res.unused  = inpt >> 14;
+                res.bus_vol = static_cast< emlabcpp::drivers::ina219::bus_voltage_range >(
+                    ( inpt >> 13 ) & 0b1 );
+                res.pga =
+                    static_cast< emlabcpp::drivers::ina219::pga_gain >( ( inpt >> 11 ) & 0b11 );
+                res.bus_adc = static_cast< emlabcpp::drivers::ina219::adc_resolution_averaging >(
+                    ( inpt >> 7 ) & 0b1111 );
+                res.shunt_adc = static_cast< emlabcpp::drivers::ina219::adc_resolution_averaging >(
+                    ( inpt >> 3 ) & 0b1111 );
+                res.mode =
+                    static_cast< emlabcpp::drivers::ina219::operating_mode >( inpt & 0xb111 );
+
+                return { max_size, res };
+        }
 };
 }  // namespace emlabcpp::protocol

@@ -36,6 +36,7 @@ public:
         config   get_config() const;
 
         i2c_write_reg_blob< 2 > set_config( config );
+        i2c_write_reg_blob< 2 > set_calib( uint16_t );
 
         bool set_config(
             config,
