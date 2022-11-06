@@ -87,7 +87,11 @@ using i2c_coroutine_var = std::variant<
     i2c_write_reg_query,
     i2c_write_query,
     i2c_read_query >;
-using i2c_coroutine        = request_reply< i2c_coroutine_var, std::span< const uint8_t > >;
+struct i2c_reply {
+        uint32_t time;
+        std::span< const uint8_t > data = {};
+};
+using i2c_coroutine        = request_reply< i2c_coroutine_var, i2c_reply >;
 using i2c_coroutine_handle = typename i2c_coroutine::handle;
 
 class i2c_awaiter_interface
@@ -124,7 +128,7 @@ public:
 
         [[nodiscard]] bool await_resume()
         {
-                return driver.store_read( q.reg, *h.promise().reply );
+                return driver.store_read( q.reg, h.promise().reply->data );
         }
 };
 
