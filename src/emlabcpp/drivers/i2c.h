@@ -1,3 +1,4 @@
+#include "emlabcpp/protocol/handler.h"
 #include "emlabcpp/protocol/message.h"
 #include "emlabcpp/static_function.h"
 #include "emlabcpp/static_vector.h"
@@ -11,24 +12,6 @@
 
 namespace emlabcpp::drivers
 {
-
-static constexpr std::size_t driver_callback_size = 48;
-
-struct i2c_owning_async_interface;
-
-using i2c_owning_async_read_callback = static_function<
-    bool( std::span< uint8_t >, i2c_owning_async_interface& ),
-    driver_callback_size >;
-using i2c_owning_async_write_callback =
-    static_function< bool( i2c_owning_async_interface& ), driver_callback_size >;
-
-struct i2c_owning_async_interface
-{
-        virtual bool read( uint8_t addr, std::size_t size, i2c_owning_async_read_callback ) = 0;
-        virtual bool
-        write( uint8_t addr, std::span< const uint8_t > data, i2c_owning_async_write_callback ) = 0;
-        virtual ~i2c_owning_async_interface() = default;
-};
 
 struct i2c_write_query
 {
@@ -87,8 +70,9 @@ using i2c_coroutine_var = std::variant<
     i2c_write_reg_query,
     i2c_write_query,
     i2c_read_query >;
-struct i2c_reply {
-        uint32_t time;
+struct i2c_reply
+{
+        uint32_t                   time;
         std::span< const uint8_t > data = {};
 };
 using i2c_coroutine        = request_reply< i2c_coroutine_var, i2c_reply >;
@@ -176,5 +160,15 @@ struct i2c_noop_awaiter
         {
         }
 };
+
+template < std::endian Endianess, typename... Args >
+auto i2c_write_reg( uint8_t addr, uint8_t reg, const Args&... args )
+{
+        using proto                       = protocol::handler< std::tuple< Args... > >;
+        using message                     = typename proto::message_type;
+        static constexpr std::size_t size = message::capacity;
+        return i2c_write_reg_awaiter< size >{ i2c_write_reg_blob< size >{
+            .addr = addr, .reg = reg, .data = proto::serialize( args... ) } };
+}
 
 }  // namespace emlabcpp::drivers

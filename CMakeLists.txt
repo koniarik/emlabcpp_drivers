@@ -24,8 +24,7 @@ target_include_directories(emlabcpp_drivers_base INTERFACE src/)
 target_link_libraries(emlabcpp_drivers_base INTERFACE emlabcpp)
 
 add_library(
-  emlabcpp_drivers_INA219 STATIC src/emlabcpp/drivers/INA219/driver.cpp
-                                 src/emlabcpp/drivers/INA219/rpc.cpp)
+  emlabcpp_drivers_INA219 STATIC src/emlabcpp/drivers/INA219/driver.cpp)
 target_link_libraries(emlabcpp_drivers_INA219 PUBLIC emlabcpp_drivers_base)
 emlabcpp_compile_options(emlabcpp_drivers_INA219)
 
