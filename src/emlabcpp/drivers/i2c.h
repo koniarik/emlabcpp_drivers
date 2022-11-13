@@ -5,7 +5,7 @@
 
 #include <array>
 #include <cstdint>
-#include <emlabcpp/experimental/coroutine/request_reply.h>
+#include <emlabcpp/experimental/coro/request_reply.h>
 #include <span>
 
 #pragma once
@@ -75,7 +75,7 @@ struct i2c_reply
         uint32_t                   time;
         std::span< const uint8_t > data = {};
 };
-using i2c_coroutine        = request_reply< i2c_coroutine_var, i2c_reply >;
+using i2c_coroutine        = coro::request_reply< i2c_coroutine_var, i2c_reply >;
 using i2c_coroutine_handle = typename i2c_coroutine::handle;
 
 class i2c_awaiter_interface
