@@ -110,26 +110,30 @@ struct converter< drivers::ina219::config, Endianess >
                 return size_type{};
         }
 
-        static constexpr auto deserialize( const bounded_view< const uint8_t*, size_type >& buffer )
-            -> conversion_result< value_type, error_possibility::IMPOSSIBLE >
+        static constexpr conversion_result
+        deserialize( const std::span< const uint8_t >& buffer, value_type& value )
         {
-                uint16_t inpt = static_cast< uint16_t >( buffer[0] << 8 | buffer[1] );
-                drivers::ina219::config res;
+                if ( buffer.size() < max_size ) {
+                        return { 0, &SIZE_ERR };
+                }
 
-                res.reset   = inpt >> 15;
-                res.unused  = inpt >> 14;
-                res.bus_vol = static_cast< emlabcpp::drivers::ina219::bus_voltage_range >(
+                uint16_t inpt = static_cast< uint16_t >( buffer[0] << 8 | buffer[1] );
+
+                value.reset   = inpt >> 15;
+                value.unused  = inpt >> 14;
+                value.bus_vol = static_cast< emlabcpp::drivers::ina219::bus_voltage_range >(
                     ( inpt >> 13 ) & 0b1 );
-                res.pga =
+                value.pga =
                     static_cast< emlabcpp::drivers::ina219::pga_gain >( ( inpt >> 11 ) & 0b11 );
-                res.bus_adc = static_cast< emlabcpp::drivers::ina219::adc_resolution_averaging >(
+                value.bus_adc = static_cast< emlabcpp::drivers::ina219::adc_resolution_averaging >(
                     ( inpt >> 7 ) & 0b1111 );
-                res.shunt_adc = static_cast< emlabcpp::drivers::ina219::adc_resolution_averaging >(
-                    ( inpt >> 3 ) & 0b1111 );
-                res.mode =
+                value.shunt_adc =
+                    static_cast< emlabcpp::drivers::ina219::adc_resolution_averaging >(
+                        ( inpt >> 3 ) & 0b1111 );
+                value.mode =
                     static_cast< emlabcpp::drivers::ina219::operating_mode >( inpt & 0xb111 );
 
-                return { max_size, res };
+                return { max_size };
         }
 };
 }  // namespace emlabcpp::protocol
