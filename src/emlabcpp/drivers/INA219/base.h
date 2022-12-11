@@ -133,7 +133,7 @@ struct converter< drivers::ina219::config, Endianess >
                 value.mode =
                     static_cast< emlabcpp::drivers::ina219::operating_mode >( inpt & 0xb111 );
 
-                return { max_size };
+                return conversion_result{ max_size };
         }
 };
 }  // namespace emlabcpp::protocol
